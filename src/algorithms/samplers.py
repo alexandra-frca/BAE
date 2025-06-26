@@ -26,7 +26,7 @@ class SMCsampler():
                  var="a", ut="var", Tc_est = None, plot = False, log = False, 
                  prior = "uniform", res_ut = False):
         assert var in ["a", "theta", "Tc"]
-        assert ut in ["var", "ESS"]
+        assert ut in ["var", "varN2", "ESS"]
         assert prior in ["uniform", "normal"]
 
         self.Npart = Npart
@@ -414,9 +414,14 @@ class SMCsampler():
             _, std = sampler_cpy.mean_and_std()
             var = std**2
             return -var
+        elif self.ut == "varN2":
+            _, std = sampler_cpy.mean_and_std()
+            var = std**2*ctrl**2
+            return -var
         elif self.ut == "ESS":
             ESS = sampler_cpy.ess_list[-1]
             return -abs(self.tgESS-ESS/self.Npart)
+
             
     def expected_probability(self, ctrl, outcome):
         likelihood = self.model.likelihood
